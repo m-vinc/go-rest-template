@@ -32,12 +32,51 @@ git clone --branch "$BRANCH" "$REPOSITORY" "$NAME"
 cd "$NAME"
 
 mv -v "./cmd/$CURRENT_NAME-apiserver" "./cmd/$NAME-apiserver"
-mv -v "./configs/$CURRENT_NAME.yml" "./configs/$NAME.yml"
 
 echo "Writing .env file for docker-compose"
 cat <<EOF > .env
 COMPOSE_PROJECT_NAME=$NAME
 NAME=$NAME
+EOF
+
+echo "Writing .gitignore"
+cat <<EOF > .gitignore
+/dist
+/cmd/$NAME-apiserver/$NAME-apiserver
+/cmd/$NAMEctl/$NAMEctl
+/deployments/production/secrets/*.yml
+.DS_Store
+
+/configs/$NAME.production.yml
+/configs/$NAME.staging.yml
+/deployments/staging/secrets/$NAME-staging.raw.yml
+/deployments/staging/secrets/$NAME-staging.yml
+EOF
+
+echo "Writing configuration file"
+cat <<EOF > ./configs/$NAME.yml
+application:
+  bind: ":9090"
+  master_key: your_secret_key_used_for_many_things
+  env: dev
+
+postgres:
+  host: psql
+  port: "5432"
+  database: $NAME_dev
+  username: $NAME_dev
+  password: $NAME_dev
+  ssl_mode: disable
+EOF
+
+echo "Writing docker-entrypoint"
+
+cat <<EOF > ./scripts/docker-entrypoint.sh
+#!/bin/bash
+
+set -e
+
+arelo -d 2s -p 'configs/*.yml' -p '**/*.go' -i '**/*_test.go' --  bash -c "go run -tags dynamic cmd/$NAME-apiserver/*.go \$@"
 EOF
 
 docker-compose build
