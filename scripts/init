@@ -35,26 +35,26 @@ mv -v "./cmd/$CURRENT_NAME-apiserver" "./cmd/$NAME-apiserver"
 
 echo "Writing .env file for docker-compose"
 cat <<EOF > .env
-COMPOSE_PROJECT_NAME=$NAME
-NAME=$NAME
+COMPOSE_PROJECT_NAME=${NAME}
+NAME=${NAME}
 EOF
 
 echo "Writing .gitignore"
 cat <<EOF > .gitignore
 /dist
-/cmd/$NAME-apiserver/$NAME-apiserver
-/cmd/$NAMEctl/$NAMEctl
+/cmd/${NAME}-apiserver/${NAME}-apiserver
+/cmd/${NAME}ctl/${NAME}ctl
 /deployments/production/secrets/*.yml
 .DS_Store
 
-/configs/$NAME.production.yml
-/configs/$NAME.staging.yml
-/deployments/staging/secrets/$NAME-staging.raw.yml
-/deployments/staging/secrets/$NAME-staging.yml
+/configs/${NAME}.production.yml
+/configs/${NAME}.staging.yml
+/deployments/staging/secrets/${NAME}-staging.raw.yml
+/deployments/staging/secrets/${NAME}-staging.yml
 EOF
 
 echo "Writing configuration file"
-cat <<EOF > ./configs/$NAME.yml
+cat <<EOF > ./configs/${NAME}.yml
 application:
   bind: ":9090"
   master_key: your_secret_key_used_for_many_things
@@ -63,9 +63,9 @@ application:
 postgres:
   host: psql
   port: "5432"
-  database: $NAME_dev
-  username: $NAME_dev
-  password: $NAME_dev
+  database: ${NAME}_dev
+  username: ${NAME}_dev
+  password: ${NAME}_dev
   ssl_mode: disable
 EOF
 
@@ -76,7 +76,7 @@ cat <<EOF > ./scripts/docker-entrypoint.sh
 
 set -e
 
-arelo -d 2s -p 'configs/*.yml' -p '**/*.go' -i '**/*_test.go' --  bash -c "go run -tags dynamic cmd/$NAME-apiserver/*.go \$@"
+arelo -d 2s -p 'configs/*.yml' -p '**/*.go' -i '**/*_test.go' --  bash -c "go run -tags dynamic cmd/${NAME}-apiserver/*.go \$@"
 EOF
 
 docker-compose build
