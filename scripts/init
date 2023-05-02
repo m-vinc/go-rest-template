@@ -82,5 +82,9 @@ EOF
 docker-compose build
 docker-compose run --entrypoint bash apiserver -c 'gorename -print-result -use-modules -new-path "demo" -path mpj && go generate ./...'
 
+rm -vf ./scripts/init
+rm -rf .git
 
-
+git init
+git add .
+git commit -m "init"
