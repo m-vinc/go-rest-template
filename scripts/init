@@ -42,7 +42,7 @@ EOF
 
 docker-compose build
 
-docker-compose run --entrypoint bash apiserver -- gorename -print-result -use-modules -new-path "$NAME" -path mpj
+docker-compose run --entrypoint bash apiserver -- gorename -print-result -use-modules -new-path "$NAME" -path mpj && go generate ./...
 
 
 
