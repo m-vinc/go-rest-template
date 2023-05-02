@@ -1,3 +1,3 @@
 package openapi
 
-//go:generate oapi-codegen --config=config.yml ../../../gen/v1.yml
+//go:generate oapi-codegen --config=config.yml ./v1.yml

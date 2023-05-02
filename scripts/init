@@ -41,9 +41,7 @@ NAME=$NAME
 EOF
 
 docker-compose build
-
-docker-compose run --entrypoint bash apiserver -- gorename -print-result -use-modules -new-path "$NAME" -path mpj && go generate ./...
-
+docker-compose run --entrypoint bash apiserver -c 'gorename -print-result -use-modules -new-path "demo" -path mpj && go generate ./...'
 
 
 
