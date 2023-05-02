@@ -1,0 +1,247 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: MPJ
+  description: |
+    My Personal Journal
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: vm
+    email: vincent@mvinc.fr
+    url: blog.mvinc.fr
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://localhost:9090/api/v1
+paths:
+  /health:
+    get:
+      tags: [Debug]
+      operationId: healthcheck
+      description: a simple call which report health of different components of the mpj infrastructure
+      responses:
+        '200':
+          description: the call return health correctly but this is not meaning that everything is in good state, look at the response for that
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStates"
+        '500':
+          description: the mpj-apiserver doesn't seems to be healthy at all
+  /panic:
+    get:
+      tags: [Debug]
+      operationId: panic
+      description: Panic on purpose for debugging
+      responses:
+        '500':
+          description: panic
+  /gateway:
+    get:
+      tags: [Gateway]
+      operationId: gatewayConnect
+      description: "Entrypoint of the websocket gateway, a valid access token is required in 'token' query parameter"
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+            description: "Your access token"
+      responses:
+        '101':
+          description: "Connected to the websocket gateway"
+        '401':
+          description: "Invalid or expired access tokenb"
+          content: &genericError
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users:
+    get:
+      tags: [Users]
+      operationId: users
+      description: Get a list of users
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: offset
+          schema:
+            $ref: "#/components/schemas/PageOffset"
+        - in: query
+          name: limit
+          schema:
+            $ref: "#/components/schemas/PageLimit"
+        - in: query
+          name: order_by
+          schema:
+            $ref: "#/components/schemas/PageOrderBy"
+        - in: query
+          name: order_dir
+          schema:
+            $ref: "#/components/schemas/PageOrderDir"
+      responses:
+        '200':
+          description: "the list of users paginated"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metadata:
+                    $ref: "#/components/schemas/PageMetadata"
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
+        '404':
+          description: "User with this hash doesn't exist"
+          content:
+            <<: *genericError
+        '500':
+          description: "The server can't get this user, please retry later"
+    post:
+      tags: [Users]
+      operationId: createUser
+      description: create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreator"
+      responses:
+        '201':
+          description: "the new user has been created and returned"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '422':
+          description: "Some required parameter or the body is invalid, review the error message"
+          content:
+            <<: *genericError
+        '409':
+          description: "The user already exist, review the error message to know more"
+          content:
+            <<: *genericError
+        '500':
+          description: "The server can't create new user, try again later"
+
+components:
+  schemas:
+    IdMixin:
+      type: object
+      properties:
+        id:
+          type: integer
+
+    DatumMixin:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    User:
+      allOf:
+        - $ref: "#/components/schemas/IdMixin"
+        - $ref: "#/components/schemas/DatumMixin"
+        - type: object
+          properties:
+            username:
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+            date_of_birth:
+              type: string
+              format: date-time
+              nillable: true
+            description:
+              type: string
+            roles:
+              type: array
+              items:
+                type: string
+    UserCreator:
+      type: object
+      required:
+        - username
+        - first_name
+        - last_name
+      properties:
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        date_of_birth:
+          type: string
+          format: date-time
+        description:
+          type: string
+
+    HealthStates:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/HealthState"
+
+    HealthState:
+      type: object
+      required:
+        - health
+        - message
+      properties:
+        health:
+          type: boolean
+        message:
+          type: string
+
+
+    PageOffset:
+      type: integer
+      format: int64
+    PageLimit:
+      type: integer
+      format: int64
+    PageOrderBy:
+      type: string
+    PageOrderDir:
+      type: string
+      nullable: true
+      enum: [asc, desc]
+
+    PageMetadata:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int
+        offset:
+          type: integer
+          format: int
+        limit:
+          type: integer
+          format: int
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

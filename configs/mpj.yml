@@ -1,0 +1,12 @@
+application:
+  bind: ":9090"
+  master_key: your_secret_key_used_for_many_things
+  env: dev
+
+postgres:
+  host: psql
+  port: "5432"
+  database: mpj_dev
+  username: mpj_dev
+  password: mpj_dev
+  ssl_mode: disable

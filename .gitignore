@@ -1,0 +1,10 @@
+/dist
+/cmd/mpj-apiserver/mpj-apiserver
+/cmd/mpjctl/mpjctl
+/deployments/production/secrets/*.yml
+.DS_Store
+
+/configs/mpj.production.yml
+/configs/mpj.staging.yml
+/deployments/staging/secrets/mpj-staging.raw.yml
+/deployments/staging/secrets/mpj-staging.yml
