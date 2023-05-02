@@ -24,9 +24,5 @@ func LoadConfig(path string) (*models.Config, error) {
 		return nil, err
 	}
 
-	// os.Setenv("INTRA_CLIENT", cfg.Intra.ClientID)
-	// os.Setenv("INTRA_SECRET", cfg.Intra.SecretID)
-	// os.Setenv("INTRA_RPS", strconv.FormatInt(int64(cfg.Intra.RPS), 10))
-
 	return cfg, err
 }
