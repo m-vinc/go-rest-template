@@ -6,16 +6,16 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_USER: mpj_dev
-      POSTGRES_PASSWORD: mpj_dev
-      POSTGRES_DATABASE: mpj_dev
+      POSTGRES_USER: ${NAME}_dev
+      POSTGRES_PASSWORD: ${NAME}_dev
+      POSTGRES_DATABASE: ${NAME}_dev
     networks:
       - database
 
   apiserver:
     build: .
     command:
-      - run -c /app/configs/mpj.yml
+      - run -c /app/configs/${NAME}.yml
     ports:
       - 9090:9090
     volumes:
@@ -29,7 +29,6 @@ services:
 volumes:
   go:
   gocache:
-  redpanda:
 
 networks:
   core:

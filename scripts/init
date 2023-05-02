@@ -1,0 +1,49 @@
+#!/bin/bash
+
+NAME="$1"
+CURRENT_NAME="mpj"
+
+REPOSITORY="https://github.com/m-vinc/go-rest-template"
+BRANCH="master"
+REQUIREMENTS="docker docker-compose"
+
+if ! [[ "$NAME" =~ ^[[:lower:][:digit:]]{3,15}$ ]]; then
+    echo "name must be a lowercase string between 3 and 15 characters long."
+    exit 1
+fi
+
+for r in $REQUIREMENTS; do
+    echo -n "checking for $r in PATH ..."
+    if ! [ -x "$(command -v $r)" ]; then
+        echo "ko"
+        echo "$r not found in PATH"
+        exit 1
+    fi
+    echo "ok"
+done
+
+if [ -d "$NAME" ]; then
+    echo "$NAME already exist"
+    exit 1
+fi
+
+git clone --branch "$BRANCH" "$REPOSITORY" "$NAME"
+
+cd "$NAME"
+
+mv -v "./cmd/$CURRENT_NAME-apiserver" "./cmd/$NAME-apiserver"
+mv -v "./configs/$CURRENT_NAME.yml" "./configs/$NAME.yml"
+
+echo "Writing .env file for docker-compose"
+cat <<EOF > .env
+COMPOSE_PROJECT_NAME=$NAME
+NAME=$NAME
+EOF
+
+docker-compose build
+
+docker-compose run --entrypoint bash apiserver -- gorename -print-result -use-modules -new-path "$NAME" -path mpj
+
+
+
+

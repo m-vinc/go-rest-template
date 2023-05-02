@@ -6,6 +6,7 @@ FROM golang:1.19
 
 RUN go install github.com/makiuchi-d/arelo@latest
 RUN go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+RUN go install github.com/Orogenesis/gorename/cmd/gorename
 
 WORKDIR /app
 
