@@ -80,7 +80,7 @@ arelo -d 2s -p 'configs/*.yml' -p '**/*.go' -i '**/*_test.go' --  bash -c "go ru
 EOF
 
 docker-compose build
-docker-compose run --entrypoint bash apiserver -c 'gorename -print-result -use-modules -new-path "demo" -path mpj && go generate ./...'
+docker-compose run --entrypoint bash apiserver -c "gorename -print-result -use-modules -new-path \"${NAME}\" -path mpj && go generate ./..."
 
 rm -vf ./scripts/init
 rm -rf .git
